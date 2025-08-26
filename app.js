@@ -3,6 +3,7 @@ const express = require('express')
 const app = express();
 const userModel = require("./models/user");
 const path = require('path');
+const bcrypt = require('bcrypt')
 
 app.set("view engine","ejs");
 app.use(express.json());
@@ -14,16 +15,21 @@ app.get('/',(req,res)=>{
     res.render("index");
 });
 
-app.post('/create', async(req,res)=>{
-  let {username , email , password , age} = req.params;
+app.post('/create', (req,res)=>{
+  let {username , email , password , age} = req.body;
 
-  let createdUser = await userModel.create({
-     username,
-     email,
-     password,
-     age
+  bcrypt.genSalt(10,(err,salt)=>{
+    bcrypt.hash(password,salt,async(err,hash)=>{
+       let createdUser = await userModel.create({
+        username,
+        email,
+        password:hash,
+        age
+      })
+      res.send(createdUser);
+    })
   })
-  res.send(createdUser);
 })
+
 
 app.listen(3000);
