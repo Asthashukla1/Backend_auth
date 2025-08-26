@@ -3,7 +3,8 @@ const express = require('express')
 const app = express();
 const userModel = require("./models/user");
 const path = require('path');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 app.set("view engine","ejs");
 app.use(express.json());
@@ -26,9 +27,23 @@ app.post('/create', (req,res)=>{
         password:hash,
         age
       })
+
+      let token = jwt.sign({email},"shhhhhhhhhhh");
+      res.cookie('token',token);
+      res.send(createdUser);
+
       res.send(createdUser);
     })
   })
+});
+
+app.get("/login",function(req,res){
+   res.render('login');
+});
+
+app.post("/logout",function(req,res){
+  res.cookie("token","");
+  res.redirect('/');
 })
 
 
